@@ -3,7 +3,6 @@
 import serial
 import threading
 from datetime import datetime
-
 from pynput import keyboard
 
 # Initialisation
@@ -96,8 +95,6 @@ def read_data():
                         setpoint = data_points[3]
                         motor_angle = data_points[4]
                         motor_rpm = data_points[5]
-
-
 
                         if motor_started:
                             # Cleaned monitoring display showing BAR metrics exclusively
