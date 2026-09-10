@@ -6,8 +6,8 @@
 ESP32Encoder encoder;
 // set desired motor speed from 20-170
 int MOTOR_SPEED = 20;
-// set target position (in degrees from 0-90)
-int TARGET_POSITION = 900;
+// set target position (540 here to demonstrate multiple turns - on average the valve takes 720 degrees from closed to open)
+int TARGET_POSITION = 540;
 
 // Define encoder pins
 const int ENCODER_A_PIN = 6;
@@ -40,7 +40,6 @@ void setup() {
 
 
 void loop() {
-  // put your main code here, to run repeatedly:
 
 motor.setSpeed(MOTOR_SPEED);
 
@@ -48,7 +47,7 @@ unsigned long currentTime = millis();
 
 unsigned long TimeInterval = currentTime - lastTime;
   
-  // Calculate updates every 50 milliseconds
+  // Calculate updates every 20 milliseconds
   if (TimeInterval >= 20) {
     long currentPosition = encoder.getCount();
 
@@ -69,7 +68,7 @@ unsigned long TimeInterval = currentTime - lastTime;
     Serial.print(currentRPM, 1);
     Serial.println(" RPM");
 
-    // Save current states for the next calculation block
+    // Save current states for the next calculation
     lastPosition = currentPosition;
     lastTime = currentTime;
 
