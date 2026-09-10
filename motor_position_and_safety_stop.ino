@@ -5,8 +5,8 @@
 ESP32Encoder encoder;
 // set desired motor speed from 20-170
 const int MOTOR_SPEED = 20;
-// set target position (in degrees from 0-90)
-int TARGET_POSITION = 900;
+// set target position (max 720 normally, as 2 full turns maps to open/closed)
+int TARGET_POSITION = 540;
 
 // Define encoder pins
 const int ENCODER_A_PIN = 6;
@@ -25,7 +25,6 @@ bool systemRunning = false; // Starts safely turned OFF
 
 
 void setup() {
-  // put your setup code here, to run once:
   Serial.begin(115200);
   // Enable internal weak pull-up resistors for the encoder channels
   ESP32Encoder::useInternalWeakPullResistors = puType::up;
@@ -45,15 +44,16 @@ void loop() {
 
     if (incomingByte == 's') { // 's' for Start
       systemRunning = true;
-      motor.setSpeed(MOTOR_SPEED); // Only spin when Python says go
+      motor.setSpeed(MOTOR_SPEED); 
     }
 
     else if (incomingByte == ' ') {
       
       motor.setSpeed(0);
       
-      Serial.println("STOPPED"); // Alerts Python that the motor died
-      while(1); // Freezes the ESP32 safety loop until manual reset
+      Serial.println("STOPPED"); // alert that motor is stopped
+      while(1); // Freezes the ESP32 safety loop until manual reset 
+      // this is quite a non-rigorous method, but since stops would only be carried out in case of emergency, I deemed this acceptable
     }
 
     else {
@@ -74,25 +74,21 @@ void loop() {
 
     float degrees = (float)currentPosition*360 / ENCODER_PPR;
     
-  
-    
     // Calculate rotational speed (RPM)
     long deltaTicks = currentPosition - lastPosition;
     float timeElapsedMinutes = (float)(currentTime - lastTime) / 60000.0;
     float currentRPM = ((float)deltaTicks / ENCODER_PPR) / timeElapsedMinutes;
 
-    // Save current states for the next calculation block
+    // Save current states for the next calculation 
     lastPosition = currentPosition;
     lastTime = currentTime;
 
     float upper_bound = TARGET_POSITION + 0.5;
     float lower_bound = TARGET_POSITION - 0.5;
 
-
-
-    Serial.print(degrees, 5);      // First column data
-    Serial.print(",");             // Comma separator
-    Serial.println(currentRPM, 1);   // Second column data
+    Serial.print(degrees, 5);      
+    Serial.print(",");             
+    Serial.println(currentRPM, 1);   
 
 
     if (systemRunning == true) {
